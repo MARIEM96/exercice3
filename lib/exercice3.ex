@@ -8,42 +8,45 @@ defmodule Messaging do
 
   @doc """
   ## Examples
-      iex> Messaging.start_link
-      {:ok, #PID<0.143.0>}
-      iex> Messaging.add_message("Bonjour")
-      :ok
-      iex> Messaging.add_message("foo")
-      :ok
-      iex> Messaging.get_messages
-      ["Bonjour, foo"]
-      :world
+
   """
 
-  def start_link do
+  def start_link() do
     GenServer.start_link(__MODULE__, [], name: :chat)
   end
-  def new(), do: Messaging.start_link()
-  def add_message( message) do
-    GenServer.cast(:chat, {:add_message, message})
+
+  def entrer_message(msg) do
+    GenServer.cast(:chat, {:ecrire_message, msg})
   end
 
-  def get_messages do
-    GenServer.call(:chat, :get_messages)
+  @spec afficher_message() :: any
+  def afficher_message() do
+    GenServer.call( :chat , :affiche_message)
   end
-  def get_message do
-    GenServer.call(:chat, :get_message)
-  end
-
-  def init(messages) do
-    {:ok, messages}
+  def stop() do
+    GenServer.stop(:chat, :normal)
   end
 
-  def handle_cast({:add_message, new_message}, messages) do
-    {:noreply, [new_message | messages]}
+
+  def init( message_vide) do
+    {:ok, message_vide}
   end
 
-  def handle_call(:get_messages, _from, messages) do
-    {:reply, messages, messages}
+  def handle_cast({:ecrire_message, msg}, state) do
+    {:noreply, [msg | state]}
   end
 
+  def handle_call(:affiche_message, _from, state) do
+    {:reply, state, state}
+  end
+  def terminate(:normal, state) do
+    IO.puts "shut down the process"
+    IO.inspect(state)
+    IO.puts"does the Genserver exist?"
+    Process.whereis(:chat) |> Process.exit(:ok)
+    result = Process.whereis(:chat) |>Process.alive?
+    IO.puts("#{result}")
+
+    :normal
+  end
 end
