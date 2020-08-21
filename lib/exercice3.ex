@@ -36,27 +36,16 @@ defmodule Messaging do
   def  process_exist?(pid) do
 
     true &&  Process.alive?(pid)
-
-
-
-
 end
-
-
-
-
-
-
-
-
-
-
-
 
 
   def stop(pid) do
     GenServer.call(pid, :stop)
   end
+
+
+
+
 
 
 
