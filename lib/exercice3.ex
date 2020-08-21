@@ -2,7 +2,7 @@ defmodule Messaging do
   use GenServer
 
 @moduledoc """
-  
+
   """
 
   @doc """
@@ -13,12 +13,11 @@ defmodule Messaging do
   :ok
   iex>Messaging.afficher_message
   ["Bonjour"]
-  iex>Messaging.stop  
+  iex>Messaging.stop
   shut down the process
    ["Bonjour"]
    does the Genserver exist?
-** (EXIT from #PID<0.158.0>) shell process exited with reason: :ok
-
+   ** (EXIT from #PID<0.158.0>) shell process exited with reason: :ok
   """
 
   def start_link() do
@@ -29,13 +28,27 @@ defmodule Messaging do
     GenServer.cast(:chat, {:ecrire_message, msg})
   end
 
-  @spec afficher_message() :: any
+
   def afficher_message() do
     GenServer.call( :chat , :affiche_message)
+  end
+  def process_exist?() do
+    GenServer.call( :chat, :does_exist)
+  end
+  def get_info() do
+    if Process.whereis(:chat) |>Process.alive? do
+      IO.puts(true)
+    else
+      IO.puts(false)
+    end
+
+
+
   end
   def stop() do
     GenServer.stop(:chat, :normal)
   end
+
 
 
   def init( message_vide) do
@@ -49,14 +62,14 @@ defmodule Messaging do
   def handle_call(:affiche_message, _from, state) do
     {:reply, state, state}
   end
+  def handle_call(:does_exist, _from ,state) do
+    result = Messaging.get_info()
+    {:reply,result , state }
+
+  end
   def terminate(:normal, state) do
     IO.puts "shut down the process"
     IO.inspect(state)
-    IO.puts"does the Genserver exist?"
-    Process.whereis(:chat) |> Process.exit(:ok)
-    result = Process.whereis(:chat) |>Process.alive?
-    IO.puts("#{result}")
-
     :normal
   end
 end
