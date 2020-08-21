@@ -21,22 +21,20 @@ defmodule Messaging do
   """
 
   def start_link() do
-    GenServer.start_link(__MODULE__, [], name: :chat)
+    GenServer.start_link(__MODULE__, [])
   end
 
-  def entrer_message(msg) do
-    GenServer.cast(:chat, {:ecrire_message, msg})
+  def entrer_message(msg, pid) do
+    GenServer.cast(pid, {:ecrire_message, msg})
   end
 
 
-  def afficher_message() do
-    GenServer.call( :chat , :affiche_message)
+  def afficher_message(pid) do
+    GenServer.call( pid , :affiche_message)
   end
-  def process_exist?() do
-    GenServer.call( :chat, :does_exist)
-  end
-  def get_info() do
-    if Process.whereis(:chat) |>Process.alive? do
+
+  def  process_exist?(pid) do
+    if Process.alive?(pid) do
       IO.puts(true)
     else
       IO.puts(false)
@@ -45,8 +43,8 @@ defmodule Messaging do
 
 
   end
-  def stop() do
-    GenServer.stop(:chat, :normal)
+  def stop(pid) do
+    GenServer.stop(pid, :normal)
   end
 
 
@@ -62,11 +60,7 @@ defmodule Messaging do
   def handle_call(:affiche_message, _from, state) do
     {:reply, state, state}
   end
-  def handle_call(:does_exist, _from ,state) do
-    result = Messaging.get_info()
-    {:reply,result , state }
 
-  end
   def terminate(:normal, state) do
     IO.puts "shut down the process"
     IO.inspect(state)
