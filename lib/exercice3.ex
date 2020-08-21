@@ -2,7 +2,6 @@ defmodule Messaging do
   use GenServer
 
 @moduledoc """
-
   """
 
   @doc """
@@ -33,18 +32,30 @@ defmodule Messaging do
     GenServer.call( pid , :affiche_message)
   end
 
+
   def  process_exist?(pid) do
-    if Process.alive?(pid) do
-      IO.puts(true)
-    else
-      IO.puts(false)
-    end
+
+    true &&  Process.alive?(pid)
 
 
 
-  end
+
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
   def stop(pid) do
-    GenServer.stop(pid, :normal)
+    GenServer.call(pid, :stop)
   end
 
 
@@ -60,10 +71,7 @@ defmodule Messaging do
   def handle_call(:affiche_message, _from, state) do
     {:reply, state, state}
   end
-
-  def terminate(:normal, state) do
-    IO.puts "shut down the process"
-    IO.inspect(state)
-    :normal
+  def handle_call(:stop, _from, state) do
+    {:stop, :normal, :shutdown, state}
   end
 end
